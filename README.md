@@ -51,6 +51,12 @@ The system enforces strict business rules around reporting structures, departmen
 
 ---
 
+## Access URLs
+
+- **Swagger Local URL** http://localhost:8080/swagger-ui/index.html#/
+- **H2 Database URL** http://localhost:8080/h2-console/
+- **H2 Database credentials** dbuser/password
+
 ## API Endpoints
 
 ### Authentication
