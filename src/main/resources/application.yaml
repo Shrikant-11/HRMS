@@ -1,0 +1,26 @@
+spring:
+  datasource:
+    url: jdbc:h2:mem:hrms
+    driver-class-name: org.h2.Driver
+    username: dbuser
+    password: password
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
+
+jwt:
+  secret: fbgshbc73rkjdcwe7fy32fh23i23gf9723fui32bif23987rfy32ufh23iugf9732fiu23f
+  expiration: 86400000
+
+server:
+  port: 8080
+
+logging:
+  level:
+    com.hrms: DEBUG
+    org.springframework.security: DEBUG
