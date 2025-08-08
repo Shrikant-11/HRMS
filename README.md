@@ -105,7 +105,7 @@ The system enforces strict business rules around reporting structures, departmen
 ```bash
 # Clone the repository
 git clone <repo-url>
-cd hrms-springboot-full
+cd hrms
 
 # Build the project
 mvn clean install
