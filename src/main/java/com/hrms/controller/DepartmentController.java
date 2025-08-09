@@ -93,7 +93,7 @@ public class DepartmentController {
         return ResponseEntity.ok(departments);
     }
 
-    @DeleteMapping("/{id}")
+   /* @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     @Operation(
             summary = "Delete Department",
@@ -105,5 +105,5 @@ public class DepartmentController {
     ) {
         departmentService.deleteDepartment(id);
         return ResponseEntity.ok().build();
-    }
+    }*/
 }

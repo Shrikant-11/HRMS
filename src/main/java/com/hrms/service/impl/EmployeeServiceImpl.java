@@ -104,12 +104,37 @@ public class EmployeeServiceImpl implements EmployeeService {
         Employee existingEmployee = empRepo.findById(id)
                 .orElseThrow(() -> new HrmsException("Employee not found"));
 
+       /* Department department =null;
+        if(employeeUpdateDTO.getDepartmentId()!=null) {
+             department = deptRepo.findById(employeeUpdateDTO.getDepartmentId())
+                    .orElseThrow(() -> new HrmsException("Department not found"));
+        }*/
+
+
+
         Employee currentUser = getCurrentUser();
         if (!canModifyEmployee(currentUser, existingEmployee)) {
             throw new UnauthorizedException(
-                    "Only the employee's manager, department head, or CEO can modify this employee");
+                    "Only the employee's manager, department head or CEO can modify this employee");
         }
 
+        /* IIn case of department is deleted and new  department want to set old department head
+        if (department.getHead() == null
+                && existingEmployee.isDeptHead()
+                && existingEmployee.getDepartment() == null  && ensureCeo()) {
+
+            department.setHead(existingEmployee);
+            existingEmployee.setDepartment(department);
+            deptRepo.save(department);
+            empRepo.save(existingEmployee);
+
+            List<Employee> subordinates = empRepo.findByManagerId(existingEmployee.getId());
+            for (Employee sub : subordinates) {
+                sub.setDepartment(department);
+            }
+            empRepo.saveAll(subordinates);
+
+        }else*/
         if (employeeUpdateDTO.getManagerId() != null || employeeUpdateDTO.getDepartmentId() != null) {
             if (currentUser.getId().equals(id)) {
                 throw new UnauthorizedException(
@@ -117,6 +142,9 @@ public class EmployeeServiceImpl implements EmployeeService {
             }
             throw new HrmsException("Cannot change manager or department via update. Use dedicated endpoints.");
         }
+
+
+
 
         validateEmployeeUpdate(existingEmployee, employeeUpdateDTO);
 
@@ -131,13 +159,37 @@ public class EmployeeServiceImpl implements EmployeeService {
         Employee existingEmployee = empRepo.findById(id)
                 .orElseThrow(() -> new HrmsException("Employee not found"));
 
+      /*  Department department =null;
+        if(employeePatchDTO.getDepartmentId()!=null) {
+            department = deptRepo.findById(employeePatchDTO.getDepartmentId())
+                    .orElseThrow(() -> new HrmsException("Department not found"));
+        }*/
+
         Employee currentUser = getCurrentUser();
         if (!canModifyEmployee(currentUser, existingEmployee)) {
             throw new UnauthorizedException(
                     "Only the employee's manager, department head, or CEO can modify this employee");
         }
 
-        if (employeePatchDTO.getManagerId() != null || employeePatchDTO.getDepartmentId() != null) {
+
+       /* In case of department is deleted and new  department want to set old department head
+
+       if (department.getHead() == null
+                && existingEmployee.isDeptHead()
+                && existingEmployee.getDepartment() == null  && ensureCeo()) {
+
+            department.setHead(existingEmployee);
+            existingEmployee.setDepartment(department);
+            deptRepo.save(department);
+            empRepo.save(existingEmployee);
+
+            List<Employee> subordinates = empRepo.findByManagerId(existingEmployee.getId());
+            for (Employee sub : subordinates) {
+                sub.setDepartment(department);
+            }
+            empRepo.saveAll(subordinates);
+
+        }else*/  if (employeePatchDTO.getManagerId() != null || employeePatchDTO.getDepartmentId() != null) {
             if (currentUser.getId().equals(id)) {
                 throw new UnauthorizedException(
                         "You cannot modify your own manager or department. Only your superiors can do this.");
@@ -257,7 +309,7 @@ public class EmployeeServiceImpl implements EmployeeService {
         }
         if (!canModifyEmployee(currentUser, employee)) {
             throw new UnauthorizedException(
-                    "Only the employee's manager, department head, or CEO can delete this employee");
+                    "Only the employee's manager, department head or CEO can delete this employee");
         }
 
         if (employee.isCeo()) {
@@ -603,14 +655,27 @@ public class EmployeeServiceImpl implements EmployeeService {
         return convertToDTO(movingHead);
     }
 
-    private boolean canModifyEmployee(Employee actor, Employee target) {
-        if (actor.isCeo()) {
+    private boolean canModifyEmployee(Employee employee, Employee target) {
+        if (employee.isCeo()) {
             return true;
         }
-        if (target.getManager() != null && target.getManager().getId().equals(actor.getId())) {
+        if (target.getManager() != null && target.getManager().getId().equals(employee.getId())) {
             return true;
         }
-        return actor.isDeptHead() && actor.getDepartment() != null
-                && actor.getDepartment().equals(target.getDepartment());
+        return employee.isDeptHead() && employee.getDepartment() != null
+                && employee.getDepartment().equals(target.getDepartment());
+    }
+
+    private boolean ensureCeo() {
+        Employee currentUser;
+        try {
+            currentUser = (Employee) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        } catch (Exception e) {
+            throw new UnauthorizedException("Unable to get current user");
+        }
+        if (currentUser == null || !currentUser.isCeo()) {
+            throw new UnauthorizedException("Only CEO can perform this operation");
+        }
+        return true;
     }
 }

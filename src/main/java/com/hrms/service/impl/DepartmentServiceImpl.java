@@ -82,22 +82,24 @@ public class DepartmentServiceImpl implements DepartmentService {
                 .collect(Collectors.toList());
     }
 
-    @Override
+/*    @Override
     public void deleteDepartment(Long id) {
         ensureCeo();
         Department department = deptRepo.findById(id)
                 .orElseThrow(() -> new HrmsException("Department not found"));
 
         if (department.hasHead()) {
-            throw new HrmsException("Cannot delete department with a head. Remove head first.");
+            department.setHead(null);
         }
 
         if (!department.getEmployees().isEmpty()) {
-            throw new HrmsException("Cannot delete department with employees. Move employees first.");
+            department.getEmployees().forEach(emp -> emp.setDepartment(null));
         }
 
+        deptRepo.save(department);
+
         deptRepo.delete(department);
-    }
+    }*/
 
     private void validateDepartmentCreation(DepartmentRequestDTO departmentRequestDTO) {
         if (deptRepo.findByName(departmentRequestDTO.getName()).isPresent()) {

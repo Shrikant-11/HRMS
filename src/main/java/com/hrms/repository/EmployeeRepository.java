@@ -15,5 +15,6 @@ public interface EmployeeRepository extends JpaRepository<Employee, Long> {
     List<Employee> findByRole(Employee.UserRole role);
     List<Employee> findByIsCeoTrue();
     List<Employee> findByIsDeptHeadTrue();
+    boolean existsByDepartmentIdAndIsDeptHeadTrue(Long departmentId);
 
 }
