@@ -92,18 +92,4 @@ public class DepartmentController {
         List<DepartmentDTO> departments = departmentService.getAllDepartments();
         return ResponseEntity.ok(departments);
     }
-
-   /* @DeleteMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
-    @Operation(
-            summary = "Delete Department",
-            description = "Deletes a department from the organization. Only ADMIN users can delete departments."
-    )
-    public ResponseEntity<Void> deleteDepartment(
-            @Parameter(description = "Department ID", required = true, example = "1")
-            @PathVariable Long id
-    ) {
-        departmentService.deleteDepartment(id);
-        return ResponseEntity.ok().build();
-    }*/
 }
