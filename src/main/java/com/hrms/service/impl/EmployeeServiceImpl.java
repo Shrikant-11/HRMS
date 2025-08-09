@@ -104,42 +104,19 @@ public class EmployeeServiceImpl implements EmployeeService {
         Employee existingEmployee = empRepo.findById(id)
                 .orElseThrow(() -> new HrmsException("Employee not found"));
 
-       /* Department department =null;
-        if(employeeUpdateDTO.getDepartmentId()!=null) {
-             department = deptRepo.findById(employeeUpdateDTO.getDepartmentId())
-                    .orElseThrow(() -> new HrmsException("Department not found"));
-        }*/
-
-
-
         Employee currentUser = getCurrentUser();
         if (!canModifyEmployee(currentUser, existingEmployee)) {
             throw new UnauthorizedException(
                     "Only the employee's manager, department head or CEO can modify this employee");
         }
 
-        /* IIn case of department is deleted and new  department want to set old department head
-        if (department.getHead() == null
-                && existingEmployee.isDeptHead()
-                && existingEmployee.getDepartment() == null  && ensureCeo()) {
+        if (currentUser.getId().equals(id)) {
+            throw new UnauthorizedException(
+                    "You cannot modify your own details.");
+        }
 
-            department.setHead(existingEmployee);
-            existingEmployee.setDepartment(department);
-            deptRepo.save(department);
-            empRepo.save(existingEmployee);
-
-            List<Employee> subordinates = empRepo.findByManagerId(existingEmployee.getId());
-            for (Employee sub : subordinates) {
-                sub.setDepartment(department);
-            }
-            empRepo.saveAll(subordinates);
-
-        }else*/
         if (employeeUpdateDTO.getManagerId() != null || employeeUpdateDTO.getDepartmentId() != null) {
-            if (currentUser.getId().equals(id)) {
-                throw new UnauthorizedException(
-                        "You cannot modify your own manager or department. Only your superiors can do this.");
-            }
+
             throw new HrmsException("Cannot change manager or department via update. Use dedicated endpoints.");
         }
 
@@ -159,11 +136,6 @@ public class EmployeeServiceImpl implements EmployeeService {
         Employee existingEmployee = empRepo.findById(id)
                 .orElseThrow(() -> new HrmsException("Employee not found"));
 
-      /*  Department department =null;
-        if(employeePatchDTO.getDepartmentId()!=null) {
-            department = deptRepo.findById(employeePatchDTO.getDepartmentId())
-                    .orElseThrow(() -> new HrmsException("Department not found"));
-        }*/
 
         Employee currentUser = getCurrentUser();
         if (!canModifyEmployee(currentUser, existingEmployee)) {
@@ -171,29 +143,12 @@ public class EmployeeServiceImpl implements EmployeeService {
                     "Only the employee's manager, department head, or CEO can modify this employee");
         }
 
+        if (currentUser.getId().equals(id)) {
+            throw new UnauthorizedException("You cannot modify your own details.");
+        }
 
-       /* In case of department is deleted and new  department want to set old department head
+       if (employeePatchDTO.getManagerId() != null || employeePatchDTO.getDepartmentId() != null) {
 
-       if (department.getHead() == null
-                && existingEmployee.isDeptHead()
-                && existingEmployee.getDepartment() == null  && ensureCeo()) {
-
-            department.setHead(existingEmployee);
-            existingEmployee.setDepartment(department);
-            deptRepo.save(department);
-            empRepo.save(existingEmployee);
-
-            List<Employee> subordinates = empRepo.findByManagerId(existingEmployee.getId());
-            for (Employee sub : subordinates) {
-                sub.setDepartment(department);
-            }
-            empRepo.saveAll(subordinates);
-
-        }else*/  if (employeePatchDTO.getManagerId() != null || employeePatchDTO.getDepartmentId() != null) {
-            if (currentUser.getId().equals(id)) {
-                throw new UnauthorizedException(
-                        "You cannot modify your own manager or department. Only your superiors can do this.");
-            }
             throw new HrmsException("Cannot change manager or department via patch. Use dedicated endpoints.");
         }
 
