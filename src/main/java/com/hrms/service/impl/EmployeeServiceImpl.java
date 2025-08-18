@@ -15,7 +15,9 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -573,6 +575,38 @@ public class EmployeeServiceImpl implements EmployeeService {
 
         Employee chiefExecutive = empRepo.findByIsCeoTrue().stream().findFirst()
                 .orElseThrow(() -> new HrmsException("CEO not found"));
+
+      //  Additional case: Moving within same department
+        if (sourceDepartment.getId().equals(newDeptId)) {
+            // Promote replacement as new head
+            replacementHead.setDeptHead(true);
+            replacementHead.setManager(chiefExecutive);
+            empRepo.save(replacementHead);
+
+            sourceDepartment.setHead(replacementHead);
+            deptRepo.save(sourceDepartment);
+
+            // Reassign employees who were reporting to old head -> new head
+            List<Employee> directReports = empRepo.findByManager(movingHead);
+
+            if (!CollectionUtils.isEmpty(directReports)) {
+                directReports.forEach(emp -> emp.setManager(replacementHead));
+                empRepo.saveAll(directReports);
+            }
+
+            // Old head becomes normal employee under the new head
+            movingHead.setDeptHead(false);
+            movingHead.setManager(replacementHead);
+            empRepo.save(movingHead);
+
+            return convertToDTO(replacementHead);
+        }
+
+
+
+
+
+
 
         // If target department already has a head, demote them and set their manager to
         // the incoming head
