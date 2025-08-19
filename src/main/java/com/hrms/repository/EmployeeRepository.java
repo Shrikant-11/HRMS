@@ -17,4 +17,5 @@ public interface EmployeeRepository extends JpaRepository<Employee, Long> {
     List<Employee> findByIsDeptHeadTrue();
     boolean existsByDepartmentIdAndIsDeptHeadTrue(Long departmentId);
 
+    List<Employee> findByManager(Employee movingHead);
 }

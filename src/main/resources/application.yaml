@@ -16,6 +16,9 @@ spring:
 jwt:
   secret: fbgshbc73rkjdcwe7fy32fh23i23gf9723fui32bif23987rfy32ufh23iugf9732fiu23f
   expiration: 86400000
+  encryption:
+    secret: A1b2C3d4E5f6G7h8I9j0K1l2M3n4O5p6
+
 
 server:
   port: 8080
